@@ -34,7 +34,7 @@ const LocationTracker = () => {
       Location.watchPositionAsync(
         {
           accuracy: Location.Accuracy.High,
-          timeInterval: 1000,
+          timeInterval: 100,
           distanceInterval: 1,
         },
         (location) => {
@@ -185,8 +185,8 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: "absolute",
-    bottom: 20,
-    left: 20,
+    bottom: 50,
+    left: 50,
   },
 });
 
