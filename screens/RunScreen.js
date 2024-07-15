@@ -3,6 +3,7 @@ import { StyleSheet, View, Dimensions, Button } from "react-native";
 import MapView, { Polyline, Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import axios from "axios";
+import polyline from "@mapbox/polyline"; // Import the polyline library
 
 const LocationTracker = () => {
   const [routeCoordinates, setRouteCoordinates] = useState([]);
@@ -100,7 +101,10 @@ const LocationTracker = () => {
       const points = response.data.routes[0].overview_polyline.points;
       console.log("Polyline points:", points);
 
-      const decodedRoute = decodePolyline(points);
+      const decodedRoute = polyline.decode(points).map((point) => ({
+        latitude: point[0],
+        longitude: point[1],
+      }));
 
       console.log("Decoded route:", decodedRoute);
 
@@ -108,41 +112,6 @@ const LocationTracker = () => {
     } catch (error) {
       console.error("Error fetching directions:", error);
     }
-  };
-
-  const decodePolyline = (t) => {
-    let points = [];
-    let index = 0,
-      len = t.length;
-    let lat = 0,
-      lng = 0;
-
-    while (index < len) {
-      let b,
-        shift = 0,
-        result = 0;
-      do {
-        b = t.charCodeAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      let dlat = result & 1 ? ~(result >> 1) : result >> 1;
-      lat += dlat;
-
-      shift = 0;
-      result = 0;
-      do {
-        b = t.charCodeAt(index++) - 63;
-        result |= (b & 0x1f) << shift;
-        shift += 5;
-      } while (b >= 0x20);
-      let dlng = result & 1 ? ~(result >> 1) : result >> 1;
-      lng += dlng;
-
-      points.push({ latitude: lat / 1e5, longitude: lng / 1e5 });
-    }
-    console.log("Decoded polyline points:", points);
-    return points;
   };
 
   return (

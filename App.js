@@ -1,19 +1,27 @@
+// App.js
 import React from "react";
-import { StyleSheet, View } from "react-native";
-import RunScreen from "./screens/RunScreen";
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <RunScreen />
-    </View>
-  );
-}
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import Login from "./screens/Login";
+import Home from "./screens/Home";
+import Tracking from "./screens/Tracking";
+import ActivityResult from "./screens/ActivityResult";
+import ReturnToStart from "./screens/ReturnToStart";
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
+const Stack = createStackNavigator();
+
+const App = () => {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Login">
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="Tracking" component={Tracking} />
+        <Stack.Screen name="ActivityResult" component={ActivityResult} />
+        <Stack.Screen name="ReturnToStart" component={ReturnToStart} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
+
+export default App;
