@@ -15,10 +15,26 @@ const App = () => {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
         <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="Home" component={Home} />
-        <Stack.Screen name="Tracking" component={Tracking} />
-        <Stack.Screen name="ActivityResult" component={ActivityResult} />
-        <Stack.Screen name="ReturnToStart" component={ReturnToStart} />
+        <Stack.Screen
+          name="Home"
+          component={Home}
+          options={{ headerLeft: null }}
+        />
+        <Stack.Screen
+          name="Tracking"
+          component={Tracking}
+          options={{ headerLeft: null }}
+        />
+        <Stack.Screen
+          name="ActivityResult"
+          component={ActivityResult}
+          options={{ headerLeft: null }}
+        />
+        <Stack.Screen
+          name="ReturnToStart"
+          component={ReturnToStart}
+          options={{ headerLeft: null }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

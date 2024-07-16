@@ -1,13 +1,21 @@
-// ActivityResult.js
 import React from "react";
 import { StyleSheet, View, Text, Button } from "react-native";
 
 const ActivityResult = ({ route, navigation }) => {
-  const { routeCoordinates } = route.params;
+  const { routeCoordinates, startTime, endTime } = route.params;
 
   const handleSaveActivity = () => {
+    const activityData = {
+      distanceMeter: totalDistance.toFixed(2),
+      distanceInKm: distanceInKm,
+      averageSpeedKM: averageSpeed,
+      timestamp: new Date().toISOString(),
+      duration: getDuration(),
+    };
+
     // Placeholder for sending data to Node server
-    console.log("Saving activity to Node server:", routeCoordinates);
+    console.log("Saving activity to Node server:", activityData);
+
     navigation.navigate("Home");
   };
 
@@ -17,25 +25,69 @@ const ActivityResult = ({ route, navigation }) => {
     });
   };
 
+  const calculateDistance = (coords) => {
+    if (coords.length < 2) return 0;
+
+    let totalDistance = 0;
+    for (let i = 1; i < coords.length; i++) {
+      const lat1 = coords[i - 1].latitude;
+      const lon1 = coords[i - 1].longitude;
+      const lat2 = coords[i].latitude;
+      const lon2 = coords[i].longitude;
+      totalDistance += haversineDistance(lat1, lon1, lat2, lon2);
+    }
+
+    return totalDistance;
+  };
+
+  const haversineDistance = (lat1, lon1, lat2, lon2) => {
+    const toRad = (x) => (x * Math.PI) / 180;
+    const R = 6371000; // Radius of the Earth in meters
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
+  const calculateAverageSpeed = (coords) => {
+    if (coords.length < 2) return 0;
+
+    const totalDistance = calculateDistance(coords) / 1000; // distance in km
+    const totalTime = (new Date(endTime) - new Date(startTime)) / 3600000; // time in hours
+
+    return (totalDistance / totalTime).toFixed(2); // km/h
+  };
+
+  const getDuration = () => {
+    const duration = (new Date(endTime) - new Date(startTime)) / 1000; // time in seconds
+    const hours = Math.floor(duration / 3600);
+    const minutes = Math.floor((duration % 3600) / 60);
+    const seconds = Math.floor(duration % 60);
+    return `${hours}h ${minutes}m ${seconds}s`;
+  };
+
+  const totalDistance = calculateDistance(routeCoordinates);
+  const distanceInKm = (totalDistance / 1000).toFixed(2);
+  const averageSpeed = calculateAverageSpeed(routeCoordinates);
+
   return (
     <View style={styles.container}>
       <View style={styles.resultContainer}>
-        <Text>Activity Summary:</Text>
-        <Text>Distance: {routeCoordinates.length * 1} meters</Text>
-        <Text>
-          Speed:{" "}
-          {routeCoordinates.length > 0
-            ? routeCoordinates[routeCoordinates.length - 1].speed
-            : 0}{" "}
-          m/s
+        <Text style={styles.header}>Activity Summary</Text>
+        <Text style={styles.text}>
+          Distance:{" "}
+          {totalDistance.toFixed(2) < 1000
+            ? totalDistance.toFixed(2) + " meters"
+            : distanceInKm + " km"}
         </Text>
-        <Text>
-          Direction:{" "}
-          {routeCoordinates.length > 0
-            ? routeCoordinates[routeCoordinates.length - 1].heading
-            : 0}{" "}
-          degrees
-        </Text>
+        <Text style={styles.text}>Average Speed: {averageSpeed} km/h</Text>
+        <Text style={styles.text}>Duration: {getDuration()}</Text>
       </View>
       <View style={styles.buttonContainer}>
         <Button title="Save" onPress={handleSaveActivity} />
@@ -51,9 +103,30 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
+    backgroundColor: "#f0f0f0",
   },
   resultContainer: {
     marginBottom: 20,
+    padding: 20,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  header: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  text: {
+    fontSize: 16,
+    marginBottom: 5,
   },
   buttonContainer: {
     flexDirection: "row",

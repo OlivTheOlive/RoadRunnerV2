@@ -8,6 +8,7 @@ const Tracking = ({ navigation }) => {
   const [currentPosition, setCurrentPosition] = useState(null);
   const [tracking, setTracking] = useState(true);
   const locationSubscriptionRef = useRef(null);
+  const startTime = useRef(new Date());
 
   useEffect(() => {
     (async () => {
@@ -63,7 +64,12 @@ const Tracking = ({ navigation }) => {
       locationSubscriptionRef.current = null;
     }
     setTracking(false);
-    navigation.navigate("ActivityResult", { routeCoordinates });
+    const endTime = new Date();
+    navigation.navigate("ActivityResult", {
+      routeCoordinates,
+      startTime: startTime.current.toISOString(),
+      endTime: endTime.toISOString(),
+    });
   };
 
   return (
@@ -93,17 +99,12 @@ const Tracking = ({ navigation }) => {
       <View style={styles.infoContainer}>
         <Text>
           Speed:{" "}
-          {currentPosition
-            ? routeCoordinates[routeCoordinates.length - 1]?.speed
+          {routeCoordinates.length > 0
+            ? (
+                routeCoordinates[routeCoordinates.length - 1].speed * 3.6
+              ).toFixed(2)
             : 0}{" "}
-          m/s
-        </Text>
-        <Text>
-          Direction:{" "}
-          {currentPosition
-            ? routeCoordinates[routeCoordinates.length - 1]?.heading
-            : 0}{" "}
-          degrees
+          km/h
         </Text>
         <Button title="Stop" onPress={stopTracking} />
       </View>
