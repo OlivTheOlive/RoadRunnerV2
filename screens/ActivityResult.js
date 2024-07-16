@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, View, Text, Button } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 
 const ActivityResult = ({ route, navigation }) => {
   const { routeCoordinates, startTime, endTime } = route.params;
@@ -90,8 +90,12 @@ const ActivityResult = ({ route, navigation }) => {
         <Text style={styles.text}>Duration: {getDuration()}</Text>
       </View>
       <View style={styles.buttonContainer}>
-        <Button title="Save" onPress={handleSaveActivity} />
-        <Button title="Return to Start" onPress={handleReturnToStart} />
+        <TouchableOpacity style={styles.button} onPress={handleSaveActivity}>
+          <Text style={styles.buttonText}>Save</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleReturnToStart}>
+          <Text style={styles.buttonText}>Return to Start</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -102,22 +106,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: "20%",
     backgroundColor: "#f0f0f0",
   },
   resultContainer: {
-    marginBottom: 20,
+    marginBottom: 10,
     padding: 20,
     backgroundColor: "#fff",
     borderRadius: 10,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 5,
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    elevation: 5,
   },
   header: {
     fontSize: 18,
@@ -129,9 +132,20 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
     width: "100%",
+  },
+  button: {
+    backgroundColor: "#007AFF",
+    paddingVertical: 15,
+    paddingHorizontal: 25,
+    borderRadius: 10,
+    marginVertical: 5,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

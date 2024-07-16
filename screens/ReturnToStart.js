@@ -1,7 +1,12 @@
-// ReturnToStart.js
-import React, { useState, useEffect } from "react";
-import { StyleSheet, View, Text, Button, Dimensions } from "react-native";
-import MapView, { Polyline } from "react-native-maps";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+} from "react-native";
+import MapView, { Polyline, Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import axios from "axios";
 import polyline from "@mapbox/polyline";
@@ -10,6 +15,7 @@ const ReturnToStart = ({ route, navigation }) => {
   const { startCoordinates } = route.params;
   const [currentPosition, setCurrentPosition] = useState(null);
   const [routeCoordinates, setRouteCoordinates] = useState([]);
+  const mapViewRef = useRef(null);
 
   useEffect(() => {
     (async () => {
@@ -23,6 +29,7 @@ const ReturnToStart = ({ route, navigation }) => {
       setCurrentPosition({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
+        heading: location.coords.heading || 0,
       });
 
       const origin = {
@@ -31,7 +38,7 @@ const ReturnToStart = ({ route, navigation }) => {
       };
 
       const destination = startCoordinates;
-      const apiKey = "YOUR_GOOGLE_MAPS_API_KEY";
+      const apiKey = "AIzaSyB7z721eM3cw5H4k7KxZENIAUVL67UxaY4";
 
       try {
         const response = await axios.get(
@@ -45,6 +52,13 @@ const ReturnToStart = ({ route, navigation }) => {
         }));
 
         setRouteCoordinates(decodedRoute);
+
+        if (mapViewRef.current) {
+          mapViewRef.current.fitToCoordinates(decodedRoute, {
+            edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+            animated: true,
+          });
+        }
       } catch (error) {
         console.error("Error fetching directions:", error);
       }
@@ -60,6 +74,7 @@ const ReturnToStart = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       <MapView
+        ref={mapViewRef}
         style={styles.map}
         initialRegion={{
           latitude: currentPosition ? currentPosition.latitude : 37.7749,
@@ -77,10 +92,26 @@ const ReturnToStart = ({ route, navigation }) => {
             strokeColor="blue"
           />
         )}
+        {currentPosition && (
+          <Marker
+            coordinate={{
+              latitude: currentPosition.latitude,
+              longitude: currentPosition.longitude,
+            }}
+            rotation={currentPosition.heading}
+            anchor={{ x: 0.5, y: 0.5 }}
+          >
+            <View style={styles.marker}>
+              <Text style={styles.markerText}>🏃</Text>
+            </View>
+          </Marker>
+        )}
       </MapView>
       <View style={styles.infoContainer}>
         <Text>Returning to Start...</Text>
-        <Button title="Save Activity" onPress={handleSaveActivity} />
+        <TouchableOpacity style={styles.button} onPress={handleSaveActivity}>
+          <Text style={styles.buttonText}>Save Activity</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -98,6 +129,31 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "#f9f9f9",
     alignItems: "center",
+  },
+  marker: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(0, 122, 255, 0.8)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  markerText: {
+    color: "#fff",
+    fontSize: 18,
+  },
+  button: {
+    backgroundColor: "#007AFF",
+    paddingVertical: 15,
+    paddingHorizontal: 25,
+    borderRadius: 10,
+    marginVertical: 10,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

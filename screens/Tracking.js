@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { StyleSheet, View, Text, Button, Dimensions } from "react-native";
-import MapView, { Polyline } from "react-native-maps";
+import MapView, { Polyline, Marker, AnimatedRegion } from "react-native-maps";
 import * as Location from "expo-location";
 
 const Tracking = ({ navigation }) => {
@@ -8,6 +8,7 @@ const Tracking = ({ navigation }) => {
   const [currentPosition, setCurrentPosition] = useState(null);
   const [tracking, setTracking] = useState(true);
   const locationSubscriptionRef = useRef(null);
+  const mapViewRef = useRef(null);
   const startTime = useRef(new Date());
 
   useEffect(() => {
@@ -22,6 +23,7 @@ const Tracking = ({ navigation }) => {
       setCurrentPosition({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
+        heading: location.coords.heading || 0,
       });
 
       startTracking();
@@ -49,7 +51,16 @@ const Tracking = ({ navigation }) => {
             ...prevCoords,
             { latitude, longitude, speed, heading },
           ]);
-          setCurrentPosition({ latitude, longitude });
+          setCurrentPosition({ latitude, longitude, heading });
+
+          if (mapViewRef.current) {
+            mapViewRef.current.animateCamera({
+              center: { latitude, longitude },
+              heading: heading || 0,
+              pitch: 0,
+              zoom: 18,
+            });
+          }
         }
       );
       locationSubscriptionRef.current = subscription;
@@ -75,15 +86,16 @@ const Tracking = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <MapView
+        ref={mapViewRef}
         style={styles.map}
         initialRegion={{
           latitude: currentPosition ? currentPosition.latitude : 37.7749,
           longitude: currentPosition ? currentPosition.longitude : -122.4194,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
+          latitudeDelta: 0.001,
+          longitudeDelta: 0.001,
         }}
-        showsUserLocation={true}
-        followsUserLocation={true}
+        showsUserLocation={false}
+        followsUserLocation={false}
       >
         {routeCoordinates.length > 0 && (
           <Polyline
@@ -94,6 +106,20 @@ const Tracking = ({ navigation }) => {
             strokeWidth={4}
             strokeColor="blue"
           />
+        )}
+        {currentPosition && (
+          <Marker
+            coordinate={{
+              latitude: currentPosition.latitude,
+              longitude: currentPosition.longitude,
+            }}
+            rotation={currentPosition.heading}
+            anchor={{ x: 0.5, y: 0.5 }}
+          >
+            <View style={styles.marker}>
+              <Text style={styles.markerText}>🏃</Text>
+            </View>
+          </Marker>
         )}
       </MapView>
       <View style={styles.infoContainer}>
@@ -124,6 +150,18 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "#f9f9f9",
     alignItems: "center",
+  },
+  marker: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    // backgroundColor: "rgba(0, 122, 255, 0.8)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  markerText: {
+    color: "#fff",
+    fontSize: 18,
   },
 });
 
