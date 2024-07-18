@@ -108,7 +108,6 @@ const ReturnToStart = ({ route, navigation }) => {
         )}
       </MapView>
       <View style={styles.infoContainer}>
-        <Text>Returning to Start...</Text>
         <TouchableOpacity style={styles.button} onPress={handleSaveActivity}>
           <Text style={styles.buttonText}>Save Activity</Text>
         </TouchableOpacity>

@@ -1,29 +1,28 @@
 import React from "react";
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import axios from "axios";
 
 const ActivityResult = ({ route, navigation }) => {
   const { routeCoordinates, startTime, endTime } = route.params;
 
-  const handleSaveActivity = () => {
-    const activityData = {
-      distanceMeter: totalDistance.toFixed(2),
-      distanceInKm: distanceInKm,
-      averageSpeedKM: averageSpeed,
-      timestamp: new Date().toISOString(),
-      duration: getDuration(),
-    };
+  const periodsOfTime = [
+    { period: "Early Morning", startHour: 0, endHour: 5 },
+    { period: "Morning", startHour: 6, endHour: 11 },
+    { period: "Afternoon", startHour: 12, endHour: 17 },
+    { period: "Evening", startHour: 18, endHour: 20 },
+    { period: "Late Evening", startHour: 21, endHour: 23 },
+  ];
 
-    // Placeholder for sending data to Node server
-    console.log("Saving activity to Node server:", activityData);
-
-    navigation.navigate("Home");
+  const getPeriodOfTime = (date) => {
+    const hours = date.getHours();
+    const period = periodsOfTime.find(
+      (p) => hours >= p.startHour && hours <= p.endHour
+    );
+    return period ? period.period : "Unknown Period";
   };
 
-  const handleReturnToStart = () => {
-    navigation.navigate("ReturnToStart", {
-      startCoordinates: routeCoordinates[0],
-    });
-  };
+  const periodOfTime = getPeriodOfTime(new Date(startTime));
+  const activityName = `${periodOfTime} Activity`;
 
   const calculateDistance = (coords) => {
     if (coords.length < 2) return 0;
@@ -72,6 +71,39 @@ const ActivityResult = ({ route, navigation }) => {
     return `${hours}h ${minutes}m ${seconds}s`;
   };
 
+  const handleSaveActivity = async () => {
+    const totalDistance = calculateDistance(routeCoordinates);
+    const distanceInKm = (totalDistance / 1000).toFixed(2);
+    const averageSpeed = calculateAverageSpeed(routeCoordinates);
+
+    const activityData = {
+      name: activityName,
+      distanceMeter: totalDistance,
+      distanceInKm: parseFloat(distanceInKm),
+      averageSpeedKM: parseFloat(averageSpeed),
+      timestamp: new Date(startTime).toISOString(),
+      duration: getDuration(),
+    };
+
+    try {
+      const response = await axios.post(
+        "http://192.168.86.22:3033/api/activity/save",
+        activityData
+      );
+      console.log("Saving activity to Node server:", activityData);
+      console.log(response.data.message);
+      navigation.navigate("Home");
+    } catch (error) {
+      console.error("Error saving activity:", error);
+    }
+  };
+
+  const handleReturnToStart = () => {
+    navigation.navigate("ReturnToStart", {
+      startCoordinates: routeCoordinates[0],
+    });
+  };
+
   const totalDistance = calculateDistance(routeCoordinates);
   const distanceInKm = (totalDistance / 1000).toFixed(2);
   const averageSpeed = calculateAverageSpeed(routeCoordinates);
@@ -80,6 +112,7 @@ const ActivityResult = ({ route, navigation }) => {
     <View style={styles.container}>
       <View style={styles.resultContainer}>
         <Text style={styles.header}>Activity Summary</Text>
+        <Text style={styles.text}>Name: {activityName}</Text>
         <Text style={styles.text}>
           Distance:{" "}
           {totalDistance.toFixed(2) < 1000
@@ -100,7 +133,6 @@ const ActivityResult = ({ route, navigation }) => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

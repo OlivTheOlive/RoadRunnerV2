@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
-import { StyleSheet, View, Text, Button, Dimensions } from "react-native";
-import MapView, { Polyline, Marker, AnimatedRegion } from "react-native-maps";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+} from "react-native";
+import MapView, { Polyline, Marker } from "react-native-maps";
 import * as Location from "expo-location";
 
 const Tracking = ({ navigation }) => {
@@ -28,7 +34,6 @@ const Tracking = ({ navigation }) => {
 
       startTracking();
     })();
-
     return () => {
       // Cleanup subscription on unmount
       if (locationSubscriptionRef.current) {
@@ -132,7 +137,9 @@ const Tracking = ({ navigation }) => {
             : 0}{" "}
           km/h
         </Text>
-        <Button title="Stop" onPress={stopTracking} />
+        <TouchableOpacity style={styles.stopButton} onPress={stopTracking}>
+          <Text style={styles.stopButtonText}>Stop</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -155,13 +162,31 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    // backgroundColor: "rgba(0, 122, 255, 0.8)",
     justifyContent: "center",
     alignItems: "center",
   },
   markerText: {
     color: "#fff",
     fontSize: 18,
+  },
+  stopButton: {
+    backgroundColor: "#FF3B30",
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 25,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6.27,
+    elevation: 10,
+  },
+  stopButtonText: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "bold",
   },
 });
 
