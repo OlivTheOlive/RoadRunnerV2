@@ -38,7 +38,8 @@ const ReturnToStart = ({ route, navigation }) => {
 
       try {
         const response = await axios.get(
-          `http://192.168.86.22:3033/api/activity/directions?origin=${origin}&destination=${destination}`
+          // `http://192.168.86.22:3033/api/activity/directions?origin=${origin}&destination=${destination}`
+          `http://172.20.10.2:3033/api/activity/directions?origin=${origin}&destination=${destination}`
         );
 
         const points = response.data.routes[0].overview_polyline.points;

@@ -19,7 +19,8 @@ const Home = ({ navigation }) => {
     try {
       // Replace 'localhost' with your machine's IP address
       const response = await axios.get(
-        "http://192.168.86.22:3033/api/activity/"
+        // "http://192.168.86.22:3033/api/activity/"
+        "http://172.20.10.2:3033/api/activity/"
       );
 
       // Directly access the data from response.data

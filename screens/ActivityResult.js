@@ -80,7 +80,8 @@ const ActivityResult = ({ route, navigation }) => {
 
     try {
       const response = await axios.post(
-        "http://192.168.86.22:3033/api/activity/save",
+        // "http://192.168.86.22:3033/api/activity/save",
+        "http://172.20.10.2:3033/api/activity/save",
         activityData
       );
       console.log("Saving activity to Node server:", activityData);
