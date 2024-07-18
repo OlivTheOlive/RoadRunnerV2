@@ -71,6 +71,10 @@ const ActivityResult = ({ route, navigation }) => {
     return `${hours}h ${minutes}m ${seconds}s`;
   };
 
+  const returnHome = async () => {
+    handleSaveActivity();
+    navigation.navigate("Home");
+  };
   const handleSaveActivity = async () => {
     const totalDistance = calculateDistance(routeCoordinates);
     const distanceInKm = (totalDistance / 1000).toFixed(2);
@@ -92,13 +96,13 @@ const ActivityResult = ({ route, navigation }) => {
       );
       console.log("Saving activity to Node server:", activityData);
       console.log(response.data.message);
-      navigation.navigate("Home");
     } catch (error) {
       console.error("Error saving activity:", error);
     }
   };
 
   const handleReturnToStart = () => {
+    handleSaveActivity();
     navigation.navigate("ReturnToStart", {
       startCoordinates: routeCoordinates[0],
     });
@@ -123,7 +127,7 @@ const ActivityResult = ({ route, navigation }) => {
         <Text style={styles.text}>Duration: {getDuration()}</Text>
       </View>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={handleSaveActivity}>
+        <TouchableOpacity style={styles.button} onPress={returnHome}>
           <Text style={styles.buttonText}>Save</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={handleReturnToStart}>

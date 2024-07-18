@@ -61,8 +61,6 @@ const ReturnToStart = ({ route, navigation }) => {
   }, []);
 
   const handleSaveActivity = () => {
-    // Placeholder for saving the completed activity
-    console.log("Activity saved");
     navigation.navigate("Home");
   };
 
@@ -74,8 +72,8 @@ const ReturnToStart = ({ route, navigation }) => {
         initialRegion={{
           latitude: currentPosition ? currentPosition.latitude : 45.4215,
           longitude: currentPosition ? currentPosition.longitude : -75.6972, // default lat long for Ottawa
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
+          latitudeDelta: 0.03,
+          longitudeDelta: 0.03, // how close to the screen
         }}
         showsUserLocation={true}
         followsUserLocation={true}
@@ -104,7 +102,7 @@ const ReturnToStart = ({ route, navigation }) => {
       </MapView>
       <View style={styles.infoContainer}>
         <TouchableOpacity style={styles.button} onPress={handleSaveActivity}>
-          <Text style={styles.buttonText}>Save Activity</Text>
+          <Text style={styles.buttonText}>Home Page</Text>
         </TouchableOpacity>
       </View>
     </View>
