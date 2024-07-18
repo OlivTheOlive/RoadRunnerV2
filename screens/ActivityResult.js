@@ -6,6 +6,7 @@ import { getDistance } from "geolib";
 const ActivityResult = ({ route, navigation }) => {
   const { routeCoordinates, startTime, endTime } = route.params;
 
+  // Define periods of time for naming activities
   const periodsOfTime = [
     { period: "Early Morning", startHour: 0, endHour: 5 },
     { period: "Morning", startHour: 6, endHour: 11 },
@@ -14,6 +15,7 @@ const ActivityResult = ({ route, navigation }) => {
     { period: "Late Evening", startHour: 21, endHour: 23 },
   ];
 
+  // Function to get the period of time based on the start time
   const getPeriodOfTime = (date) => {
     const hours = date.getHours();
     const period = periodsOfTime.find(
@@ -22,9 +24,11 @@ const ActivityResult = ({ route, navigation }) => {
     return period ? period.period : "Unknown Period";
   };
 
+  // Get the period of time and construct the activity name
   const periodOfTime = getPeriodOfTime(new Date(startTime));
   const activityName = `${periodOfTime} Activity`;
 
+  // Function to calculate the total distance using the coordinates
   const calculateDistance = (coords) => {
     if (coords.length < 2) return 0;
 
@@ -42,6 +46,7 @@ const ActivityResult = ({ route, navigation }) => {
     return totalDistance;
   };
 
+  // Function to calculate the average speed
   const calculateAverageSpeed = (coords) => {
     if (coords.length < 2) return 0;
 
@@ -51,6 +56,7 @@ const ActivityResult = ({ route, navigation }) => {
     return (totalDistance / totalTime).toFixed(2); // km/h
   };
 
+  // Function to get the duration of the activity
   const getDuration = () => {
     const duration = (new Date(endTime) - new Date(startTime)) / 1000; // time in seconds
     const hours = Math.floor(duration / 3600);
@@ -59,11 +65,13 @@ const ActivityResult = ({ route, navigation }) => {
     return `${hours}h ${minutes}m ${seconds}s`;
   };
 
+  // Function to handle saving the activity and navigate to home
   const returnHome = async () => {
     handleSaveActivity();
     navigation.navigate("Home");
   };
 
+  // Function to save the activity to the server
   const handleSaveActivity = async () => {
     const totalDistance = calculateDistance(routeCoordinates);
     const distanceInKm = (totalDistance / 1000).toFixed(2);
@@ -80,7 +88,6 @@ const ActivityResult = ({ route, navigation }) => {
 
     try {
       const response = await axios.post(
-        // "http://192.168.86.22:3033/api/activity/save",
         "http://172.20.10.2:3033/api/activity/save",
         activityData
       );
@@ -91,6 +98,7 @@ const ActivityResult = ({ route, navigation }) => {
     }
   };
 
+  // Function to handle returning to the start location
   const handleReturnToStart = () => {
     handleSaveActivity();
     navigation.navigate("ReturnToStart", {
@@ -98,6 +106,7 @@ const ActivityResult = ({ route, navigation }) => {
     });
   };
 
+  // Calculate total distance and average speed for display
   const totalDistance = calculateDistance(routeCoordinates);
   const distanceInKm = (totalDistance / 1000).toFixed(2);
   const averageSpeed = calculateAverageSpeed(routeCoordinates);

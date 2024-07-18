@@ -12,9 +12,12 @@ import { useFocusEffect } from "@react-navigation/native";
 import ActivityItem from "./ActivityItem"; // Make sure to adjust the path as needed
 
 const Home = ({ navigation }) => {
+  // State to store the history of activities
   const [history, setHistory] = useState(null);
+  // State to manage the loading state
   const [loading, setLoading] = useState(true);
 
+  // Function to fetch activities from the server
   const fetchActivities = async () => {
     try {
       // Replace 'localhost' with your machine's IP address
@@ -30,10 +33,12 @@ const Home = ({ navigation }) => {
     } catch (error) {
       console.error("Error fetching activity:", error);
     } finally {
+      // Set loading to false after the request is completed
       setLoading(false);
     }
   };
 
+  // useFocusEffect is a React Navigation hook that runs the callback when the screen comes into focus
   useFocusEffect(
     React.useCallback(() => {
       setLoading(true);
@@ -41,6 +46,7 @@ const Home = ({ navigation }) => {
     }, [])
   );
 
+  // Function to handle the deletion of an activity
   const handleDelete = (id) => {
     setHistory((prevHistory) =>
       prevHistory.filter((activity) => activity.id !== id)
@@ -49,6 +55,7 @@ const Home = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      {/* Button to navigate to the Tracking screen */}
       <TouchableOpacity
         style={styles.goButton}
         onPress={() => navigation.navigate("Tracking")}
@@ -58,8 +65,10 @@ const Home = ({ navigation }) => {
       <View style={styles.oldActivities}>
         <Text style={styles.header}>Activities</Text>
         {loading ? (
+          // Display a loading indicator while fetching data
           <ActivityIndicator size="large" color="#007AFF" />
         ) : history ? (
+          // Display the list of activities if data is available
           <ScrollView contentContainerStyle={styles.scrollView}>
             {history.map((activity) => (
               <ActivityItem
@@ -70,6 +79,7 @@ const Home = ({ navigation }) => {
             ))}
           </ScrollView>
         ) : (
+          // Display a message if no activities are available
           <Text>No old activities available.</Text>
         )}
       </View>

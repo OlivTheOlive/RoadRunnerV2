@@ -3,8 +3,9 @@ import { StyleSheet, View, Dimensions, Button } from "react-native";
 import MapView, { Polyline, Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import axios from "axios";
-import polyline from "@mapbox/polyline"; // Import the polyline library
+import polyline from "@mapbox/polyline";
 
+//Testing ground for tracking and api calling
 const LocationTracker = () => {
   const [routeCoordinates, setRouteCoordinates] = useState([]);
   const [currentPosition, setCurrentPosition] = useState(null);

@@ -12,20 +12,31 @@ import axios from "axios";
 import polyline from "@mapbox/polyline";
 
 const ReturnToStart = ({ route, navigation }) => {
+  // Extract startCoordinates from route parameters
   const { startCoordinates } = route.params;
+
+  // State to store the current position of the user
   const [currentPosition, setCurrentPosition] = useState(null);
+
+  // State to store the route coordinates
   const [routeCoordinates, setRouteCoordinates] = useState([]);
+
+  // State to store the arrows for the route
   const [arrows, setArrows] = useState([]);
+
+  // Reference to the MapView
   const mapViewRef = useRef(null);
 
   useEffect(() => {
     (async () => {
+      // Request location permissions
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         alert("Permission to access location was denied");
         return;
       }
 
+      // Get the current location
       let location = await Location.getCurrentPositionAsync({});
       setCurrentPosition({
         latitude: location.coords.latitude,
@@ -37,20 +48,24 @@ const ReturnToStart = ({ route, navigation }) => {
       const destination = `${startCoordinates.latitude},${startCoordinates.longitude}`;
 
       try {
+        // Fetch directions from the server
         const response = await axios.get(
           // `http://192.168.86.22:3033/api/activity/directions?origin=${origin}&destination=${destination}`
           `http://172.20.10.2:3033/api/activity/directions?origin=${origin}&destination=${destination}`
         );
 
+        // Decode the polyline points
         const points = response.data.routes[0].overview_polyline.points;
         const decodedRoute = polyline.decode(points).map((point) => ({
           latitude: point[0],
           longitude: point[1],
         }));
 
+        // Set the route coordinates and arrows
         setRouteCoordinates(decodedRoute);
         setArrows(generateArrows(decodedRoute));
 
+        // Fit the map to the coordinates
         if (mapViewRef.current) {
           mapViewRef.current.fitToCoordinates(decodedRoute, {
             edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
@@ -63,6 +78,7 @@ const ReturnToStart = ({ route, navigation }) => {
     })();
   }, []);
 
+  // Generate arrows along the route
   const generateArrows = (coordinates) => {
     const arrowInterval = 5; // distance between arrows in coordinates
     let arrowsArray = [];
@@ -91,6 +107,7 @@ const ReturnToStart = ({ route, navigation }) => {
     return arrowsArray;
   };
 
+  // Handle saving the activity and navigating to the home page
   const handleSaveActivity = () => {
     navigation.navigate("Home");
   };

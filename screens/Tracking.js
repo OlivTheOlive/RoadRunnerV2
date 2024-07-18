@@ -10,30 +10,39 @@ import MapView, { Polyline, Marker } from "react-native-maps";
 import * as Location from "expo-location";
 
 const Tracking = ({ navigation }) => {
+  // State to store the coordinates of the route
   const [routeCoordinates, setRouteCoordinates] = useState([]);
+  // State to store the current position of the user
   const [currentPosition, setCurrentPosition] = useState(null);
-  const [tracking, setTracking] = useState(true);
+  // Reference to store the location subscription
   const locationSubscriptionRef = useRef(null);
+  // Reference to the MapView
   const mapViewRef = useRef(null);
+  // Reference to store the start time of the tracking
   const startTime = useRef(new Date());
 
   useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
+    // Function to request permissions and fetch the current location
+    const requestPermissionsAndFetchLocation = async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         alert("Permission to access location was denied");
         return;
       }
 
-      let location = await Location.getCurrentPositionAsync({});
+      const location = await Location.getCurrentPositionAsync({});
       setCurrentPosition({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
         heading: location.coords.heading || 0,
       });
 
+      // Start tracking the location
       startTracking();
-    })();
+    };
+
+    requestPermissionsAndFetchLocation();
+
     return () => {
       // Cleanup subscription on unmount
       if (locationSubscriptionRef.current) {
@@ -42,6 +51,7 @@ const Tracking = ({ navigation }) => {
     };
   }, []);
 
+  // Function to start tracking the location
   const startTracking = async () => {
     try {
       const subscription = await Location.watchPositionAsync(
@@ -58,14 +68,12 @@ const Tracking = ({ navigation }) => {
           ]);
           setCurrentPosition({ latitude, longitude, heading });
 
-          if (mapViewRef.current) {
-            mapViewRef.current.animateCamera({
-              center: { latitude, longitude },
-              heading: heading || 0,
-              pitch: 0,
-              zoom: 18,
-            });
-          }
+          mapViewRef.current?.animateCamera({
+            center: { latitude, longitude },
+            heading: heading || 0,
+            pitch: 0,
+            zoom: 18,
+          });
         }
       );
       locationSubscriptionRef.current = subscription;
@@ -74,12 +82,9 @@ const Tracking = ({ navigation }) => {
     }
   };
 
+  // Function to stop tracking the location
   const stopTracking = () => {
-    if (locationSubscriptionRef.current) {
-      locationSubscriptionRef.current.remove();
-      locationSubscriptionRef.current = null;
-    }
-    setTracking(false);
+    locationSubscriptionRef.current?.remove();
     const endTime = new Date();
     navigation.navigate("ActivityResult", {
       routeCoordinates,
@@ -94,8 +99,8 @@ const Tracking = ({ navigation }) => {
         ref={mapViewRef}
         style={styles.map}
         initialRegion={{
-          latitude: currentPosition ? currentPosition.latitude : 45.4215,
-          longitude: currentPosition ? currentPosition.longitude : -75.6972, // default lat long for Ottawa
+          latitude: currentPosition?.latitude || 45.4215,
+          longitude: currentPosition?.longitude || -75.6972, // default lat long for Ottawa
           latitudeDelta: 0.001,
           longitudeDelta: 0.001,
         }}
@@ -104,20 +109,14 @@ const Tracking = ({ navigation }) => {
       >
         {routeCoordinates.length > 0 && (
           <Polyline
-            coordinates={routeCoordinates.map(({ latitude, longitude }) => ({
-              latitude,
-              longitude,
-            }))}
+            coordinates={routeCoordinates}
             strokeWidth={4}
             strokeColor="blue"
           />
         )}
         {currentPosition && (
           <Marker
-            coordinate={{
-              latitude: currentPosition.latitude,
-              longitude: currentPosition.longitude,
-            }}
+            coordinate={currentPosition}
             rotation={currentPosition.heading}
             anchor={{ x: 0.5, y: 0.5 }}
           >
