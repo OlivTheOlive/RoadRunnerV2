@@ -94,8 +94,8 @@ const Tracking = ({ navigation }) => {
         ref={mapViewRef}
         style={styles.map}
         initialRegion={{
-          latitude: currentPosition ? currentPosition.latitude : 37.7749,
-          longitude: currentPosition ? currentPosition.longitude : -122.4194,
+          latitude: currentPosition ? currentPosition.latitude : 45.4215,
+          longitude: currentPosition ? currentPosition.longitude : -75.6972, // default lat long for Ottawa
           latitudeDelta: 0.001,
           longitudeDelta: 0.001,
         }}
