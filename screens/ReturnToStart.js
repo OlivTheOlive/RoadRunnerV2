@@ -32,17 +32,12 @@ const ReturnToStart = ({ route, navigation }) => {
         heading: location.coords.heading || 0,
       });
 
-      const origin = {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      };
-
-      const destination = startCoordinates;
-      const apiKey = "AIzaSyB7z721eM3cw5H4k7KxZENIAUVL67UxaY4";
+      const origin = `${location.coords.latitude},${location.coords.longitude}`;
+      const destination = `${startCoordinates.latitude},${startCoordinates.longitude}`;
 
       try {
         const response = await axios.get(
-          `https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&key=${apiKey}`
+          `http://192.168.86.22:3033/api/activity/directions?origin=${origin}&destination=${destination}`
         );
 
         const points = response.data.routes[0].overview_polyline.points;
