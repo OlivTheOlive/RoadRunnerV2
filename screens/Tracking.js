@@ -46,8 +46,8 @@ const Tracking = ({ navigation }) => {
     try {
       const subscription = await Location.watchPositionAsync(
         {
-          accuracy: Location.Accuracy.High,
-          timeInterval: 1000,
+          accuracy: Location.Accuracy.BestForNavigation,
+          timeInterval: 100,
           distanceInterval: 1,
         },
         (location) => {

@@ -15,6 +15,7 @@ const ReturnToStart = ({ route, navigation }) => {
   const { startCoordinates } = route.params;
   const [currentPosition, setCurrentPosition] = useState(null);
   const [routeCoordinates, setRouteCoordinates] = useState([]);
+  const [arrows, setArrows] = useState([]);
   const mapViewRef = useRef(null);
 
   useEffect(() => {
@@ -47,6 +48,7 @@ const ReturnToStart = ({ route, navigation }) => {
         }));
 
         setRouteCoordinates(decodedRoute);
+        setArrows(generateArrows(decodedRoute));
 
         if (mapViewRef.current) {
           mapViewRef.current.fitToCoordinates(decodedRoute, {
@@ -60,6 +62,34 @@ const ReturnToStart = ({ route, navigation }) => {
     })();
   }, []);
 
+  const generateArrows = (coordinates) => {
+    const arrowInterval = 5; // distance between arrows in coordinates
+    let arrowsArray = [];
+
+    for (let i = 0; i < coordinates.length - 1; i += arrowInterval) {
+      const start = coordinates[i];
+      const end =
+        coordinates[
+          i + arrowInterval < coordinates.length
+            ? i + arrowInterval
+            : coordinates.length - 1
+        ];
+      const angle =
+        Math.atan2(
+          end.latitude - start.latitude,
+          end.longitude - start.longitude
+        ) *
+        (180 / Math.PI);
+
+      arrowsArray.push({
+        coordinate: start,
+        angle,
+      });
+    }
+
+    return arrowsArray;
+  };
+
   const handleSaveActivity = () => {
     navigation.navigate("Home");
   };
@@ -71,9 +101,9 @@ const ReturnToStart = ({ route, navigation }) => {
         style={styles.map}
         initialRegion={{
           latitude: currentPosition ? currentPosition.latitude : 45.4215,
-          longitude: currentPosition ? currentPosition.longitude : -75.6972, // default lat long for Ottawa
-          latitudeDelta: 0.03,
-          longitudeDelta: 0.03, // how close to the screen
+          longitude: currentPosition ? currentPosition.longitude : -75.6972,
+          latitudeDelta: 0.001,
+          longitudeDelta: 0.001,
         }}
         showsUserLocation={true}
         followsUserLocation={true}
@@ -85,6 +115,16 @@ const ReturnToStart = ({ route, navigation }) => {
             strokeColor="blue"
           />
         )}
+        {arrows.map((arrow, index) => (
+          <Marker
+            key={index}
+            coordinate={arrow.coordinate}
+            anchor={{ x: 0.5, y: 0.5 }}
+            style={{ transform: [{ rotate: `${arrow.angle}deg` }] }}
+          >
+            <Text style={styles.arrow}>➤</Text>
+          </Marker>
+        ))}
         {currentPosition && (
           <Marker
             coordinate={{
@@ -146,6 +186,10 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  arrow: {
+    fontSize: 24,
+    color: "blue",
   },
 });
 

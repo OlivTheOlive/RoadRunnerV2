@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import axios from "axios";
+import { getDistance } from "geolib";
 
 const ActivityResult = ({ route, navigation }) => {
   const { routeCoordinates, startTime, endTime } = route.params;
@@ -29,29 +30,16 @@ const ActivityResult = ({ route, navigation }) => {
 
     let totalDistance = 0;
     for (let i = 1; i < coords.length; i++) {
-      const lat1 = coords[i - 1].latitude;
-      const lon1 = coords[i - 1].longitude;
-      const lat2 = coords[i].latitude;
-      const lon2 = coords[i].longitude;
-      totalDistance += haversineDistance(lat1, lon1, lat2, lon2);
+      totalDistance += getDistance(
+        {
+          latitude: coords[i - 1].latitude,
+          longitude: coords[i - 1].longitude,
+        },
+        { latitude: coords[i].latitude, longitude: coords[i].longitude }
+      );
     }
 
     return totalDistance;
-  };
-
-  const haversineDistance = (lat1, lon1, lat2, lon2) => {
-    const toRad = (x) => (x * Math.PI) / 180;
-    const R = 6371000; // Radius of the Earth in meters
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRad(lat1)) *
-        Math.cos(toRad(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
   };
 
   const calculateAverageSpeed = (coords) => {
@@ -75,6 +63,7 @@ const ActivityResult = ({ route, navigation }) => {
     handleSaveActivity();
     navigation.navigate("Home");
   };
+
   const handleSaveActivity = async () => {
     const totalDistance = calculateDistance(routeCoordinates);
     const distanceInKm = (totalDistance / 1000).toFixed(2);
@@ -137,6 +126,7 @@ const ActivityResult = ({ route, navigation }) => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
