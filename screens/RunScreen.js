@@ -10,7 +10,7 @@ const LocationTracker = () => {
   const [routeCoordinates, setRouteCoordinates] = useState([]);
   const [currentPosition, setCurrentPosition] = useState(null);
   const [tracking, setTracking] = useState(false);
-  const API_ROUTE = "AIzaSyB7z721eM3cw5H4k7KxZENIAUVL67UxaY4";
+  const API_ROUTE = "";
   const locationSubscriptionRef = useRef(null);
 
   useEffect(() => {
